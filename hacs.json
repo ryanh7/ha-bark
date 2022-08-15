@@ -1,0 +1,7 @@
+{
+  "name": "Bark",
+  "homeassistant": "0.115.0",
+  "country": "CN",
+  "domains": ["notify"],
+  "render_readme": true
+}

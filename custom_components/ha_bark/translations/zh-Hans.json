@@ -1,0 +1,24 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "data": {
+                    "name": "名称",
+                    "url": "Url, 如https://api.day.app/xxxxxxx"
+                },
+                "title": "Bark设置"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "name": "名称",
+                    "url": "Url, 如https://api.day.app/xxxxxxx"
+                },
+                "title": "Bark设置"
+            }
+        }
+    }
+}

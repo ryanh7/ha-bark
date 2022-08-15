@@ -1,0 +1,24 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "data": {
+                    "name": "Name",
+                    "url": "Base url, like https://api.day.app/xxxxxxx"
+                },
+                "title": "Setup"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "name": "Name",
+                    "url": "Base url, like https://api.day.app/xxxxxxx"
+                },
+                "title": "Setup"
+            }
+        }
+    }
+}
