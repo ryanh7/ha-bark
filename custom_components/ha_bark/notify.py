@@ -66,7 +66,14 @@ class BarkNotificationService(BaseNotificationService):
                 if (sound := data.get(ATTR_SOUND)) is not None:
                     params["sound"] = sound
 
-            requests.post(
-                url=config[CONF_HOST] + "/push",
-                json=params
-            )
+            try:
+                resp = requests.post(
+                    url=config[CONF_HOST] + "/push",
+                    json=params
+                )
+
+                result = resp.json()
+                if result.get("code") != 200:
+                    _LOGGER.warning(result)
+            except Exception as e:
+                _LOGGER.error(e)
