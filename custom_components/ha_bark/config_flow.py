@@ -5,7 +5,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
-from homeassistant.const import CONF_NAME, CONF_URL
+from homeassistant.const import CONF_NAME, CONF_HOST, CONF_TOKEN
 
 from .const import DOMAIN
 
@@ -15,7 +15,7 @@ _LOGGER = logging.getLogger(__name__)
 class BarkFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Met Eireann component."""
 
-    VERSION = 1
+    VERSION = 2
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
@@ -29,7 +29,8 @@ class BarkFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                     {
                         vol.Required(CONF_NAME): cv.string,
-                        vol.Required(CONF_URL, default="https://api.day.app/"): cv.string,
+                        vol.Required(CONF_HOST, default="https://api.day.app"): cv.string,
+                        vol.Required(CONF_TOKEN): cv.string,
                     }
             ),
             errors=errors,
@@ -62,7 +63,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             step_id="init",
             data_schema=vol.Schema(
                     {
-                        vol.Required(CONF_URL, default=self.config[CONF_URL]): cv.string,
+                        vol.Required(CONF_NAME, default=self.config[CONF_NAME]): cv.string,
+                        vol.Required(CONF_HOST, default=self.config[CONF_HOST]): cv.string,
+                        vol.Required(CONF_TOKEN, default=self.config[CONF_TOKEN]): cv.string,
                     }
             )
         )

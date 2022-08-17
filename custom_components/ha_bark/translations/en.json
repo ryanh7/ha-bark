@@ -4,7 +4,8 @@
             "user": {
                 "data": {
                     "name": "Name",
-                    "url": "Base url, like https://api.day.app/xxxxxxx"
+                    "host": "Host, like https://api.day.app",
+                    "token": "Device token"
                 },
                 "title": "Setup"
             }
@@ -15,7 +16,8 @@
             "init": {
                 "data": {
                     "name": "Name",
-                    "url": "Base url, like https://api.day.app/xxxxxxx"
+                    "host": "Host, like https://api.day.app",
+                    "token": "Device token"
                 },
                 "title": "Setup"
             }
