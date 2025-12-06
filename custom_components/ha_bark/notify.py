@@ -40,13 +40,11 @@ class BarkNotificationService(BaseNotificationService):
             if (config := self.hass.data[DATA_BARK].get(name)) is None:
                 continue
 
-            params = {}
-            params["body"] = message
-            params["device_key"] = config[CONF_TOKEN]
+            params = {"body": message, "device_key": config[CONF_TOKEN]}
 
             if (
-                (title := kwargs.get(ATTR_TITLE)) is not None
-                and title != ATTR_TITLE_DEFAULT
+                    (title := kwargs.get(ATTR_TITLE)) is not None
+                    and title != ATTR_TITLE_DEFAULT
             ):
                 params["title"] = title
 
@@ -55,16 +53,20 @@ class BarkNotificationService(BaseNotificationService):
                     params["copy"] = copy
                     if data.get(ATTR_AUTO_COPY):
                         params["automaticallyCopy"] = 1
-                if (badge := data.get(ATTR_BADGE)) is not None:
+                elif (badge := data.get(ATTR_BADGE)) is not None:
                     params["badge"] = badge
-                if (purl := data.get(ATTR_URL)) is not None:
+                elif (purl := data.get(ATTR_URL)) is not None:
                     params["url"] = purl
-                if (group := data.get(ATTR_GROUP)) is not None:
+                elif (group := data.get(ATTR_GROUP)) is not None:
                     params["group"] = group
-                if (icon := data.get(ATTR_ICON)) is not None:
+                elif (icon := data.get(ATTR_ICON)) is not None:
                     params["icon"] = icon
-                if (sound := data.get(ATTR_SOUND)) is not None:
+                elif (sound := data.get(ATTR_SOUND)) is not None:
                     params["sound"] = sound
+                else:
+                    for key, value in data.items():
+                        if value is not None or params.get(key) is None:
+                            params[key] = value
 
             try:
                 resp = requests.post(
