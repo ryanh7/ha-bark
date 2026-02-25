@@ -9,7 +9,7 @@ from homeassistant.components.notify import (
     BaseNotificationService
 )
 from homeassistant.const import CONF_HOST, CONF_TOKEN
-from .const import ATTR_AUTO_COPY, ATTR_BADGE, ATTR_COPY, ATTR_GROUP, ATTR_ICON, ATTR_SOUND, ATTR_URL, DATA_BARK
+from .const import ATTR_AUTO_COPY, ATTR_BADGE, ATTR_CALL, ATTR_COPY, ATTR_GROUP, ATTR_ICON, ATTR_IMAGE, ATTR_IS_ARCHIVE, ATTR_LEVEL, ATTR_SOUND, ATTR_URL, ATTR_VOLUME, DATA_BARK
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,6 +65,16 @@ class BarkNotificationService(BaseNotificationService):
                     params["icon"] = icon
                 if (sound := data.get(ATTR_SOUND)) is not None:
                     params["sound"] = sound
+                if (call := data.get(ATTR_CALL)) is not None:
+                    params["call"] = call
+                if (is_archive := data.get(ATTR_IS_ARCHIVE)) is not None:
+                    params["isArchive"] = is_archive
+                if (level := data.get(ATTR_LEVEL)) is not None:
+                    params["level"] = level
+                    if (volume := data.get(ATTR_VOLUME)) is not None:
+                        params["volume"] = volume
+                if (image := data.get(ATTR_IMAGE)) is not None:
+                    params["image"] = image
 
             try:
                 resp = requests.post(
@@ -75,5 +85,7 @@ class BarkNotificationService(BaseNotificationService):
                 result = resp.json()
                 if result.get("code") != 200:
                     _LOGGER.warning(result)
+                else:
+                    _LOGGER.debug(result)
             except Exception as e:
                 _LOGGER.error(e)
