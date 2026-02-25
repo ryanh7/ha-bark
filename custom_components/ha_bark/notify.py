@@ -43,9 +43,12 @@ class BarkNotificationService(BaseNotificationService):
 
         session = async_get_clientsession(self.hass)
 
+        success = True
+
         for name in targets:
             config = data_store.get(name)
             if config is None:
+                success = False
                 _LOGGER.warning("Target %s not found", name)
                 continue
 
