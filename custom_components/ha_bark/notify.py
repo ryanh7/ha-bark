@@ -9,12 +9,13 @@ from homeassistant.components.notify import (
     BaseNotificationService
 )
 from homeassistant.const import CONF_HOST, CONF_TOKEN
-from .const import ATTR_AUTO_COPY, ATTR_BADGE, ATTR_COPY, ATTR_GROUP, ATTR_ICON, ATTR_SOUND, ATTR_URL, DATA_BARK
+from homeassistant.helpers.aiohttp_client  import async_get_clientsession
+from .const import ATTR_AUTO_COPY, ATTR_BADGE, ATTR_CALL, ATTR_COPY, ATTR_GROUP, ATTR_ICON, ATTR_IMAGE, ATTR_IS_ARCHIVE, ATTR_LEVEL, ATTR_SOUND, ATTR_URL, ATTR_VOLUME, DATA_BARK
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def get_service(hass, config, discovery_info=None):
+async def async_get_service(hass, config, discovery_info=None):
     return BarkNotificationService(hass)
 
 
@@ -26,23 +27,35 @@ class BarkNotificationService(BaseNotificationService):
 
     @property
     def targets(self):
-        """Return a dictionary of registered targets."""
-        targets = {}
-        for name in self.hass.data[DATA_BARK].keys():
-            targets[name] = name
-        return targets
+        data = self.hass.data.get(DATA_BARK, {})
+        return {name: name for name in data.keys()}
 
-    def send_message(self, message="", **kwargs):
-        if not (targets := kwargs.get(ATTR_TARGET)):
-            targets = self.hass.data[DATA_BARK].keys()
+    async def async_send_message(self, message="", **kwargs):
+        data_store = self.hass.data.get(DATA_BARK, {})
+        if not data_store:
+            _LOGGER.warning("Bark data not initialized")
+            return False
+        targets = kwargs.get(ATTR_TARGET)
+        if not targets:
+            targets = list(data_store.keys())
+        if isinstance(targets, str):
+            targets = [targets]
+
+        session = async_get_clientsession(self.hass)
+
+        success = True
 
         for name in targets:
-            if (config := self.hass.data[DATA_BARK].get(name)) is None:
+            config = data_store.get(name)
+            if config is None:
+                success = False
+                _LOGGER.warning("Target %s not found", name)
                 continue
 
-            params = {}
-            params["body"] = message
-            params["device_key"] = config[CONF_TOKEN]
+            params = {
+                "body": message,
+                "device_key": config[CONF_TOKEN],
+            }
 
             if (
                 (title := kwargs.get(ATTR_TITLE)) is not None
@@ -65,15 +78,39 @@ class BarkNotificationService(BaseNotificationService):
                     params["icon"] = icon
                 if (sound := data.get(ATTR_SOUND)) is not None:
                     params["sound"] = sound
+                if (call := data.get(ATTR_CALL)) is not None:
+                    params["call"] = call
+                if (is_archive := data.get(ATTR_IS_ARCHIVE)) is not None:
+                    params["isArchive"] = is_archive
+                if (level := data.get(ATTR_LEVEL)) is not None:
+                    params["level"] = level
+                    if (volume := data.get(ATTR_VOLUME)) is not None:
+                        params["volume"] = volume
+                if (image := data.get(ATTR_IMAGE)) is not None:
+                    params["image"] = image
 
             try:
-                resp = requests.post(
-                    url=config[CONF_HOST] + "/push",
-                    json=params
-                )
+                async with session.post(
+                    url=f"{config[CONF_HOST]}/push",
+                    json=params,
+                ) as resp:
+                    resp.raise_for_status()
+                    if resp.status != 200:
+                        _LOGGER.warning(
+                            "Bark HTTP error %s for %s",
+                            resp.status,
+                            name,
+                        )
+                        success = False
+                        continue
 
-                result = resp.json()
-                if result.get("code") != 200:
-                    _LOGGER.warning(result)
+                    result = await resp.json()
+                    if result.get("code") != 200:
+                        _LOGGER.warning("Bark API error: %s", result)
+                    else:
+                        _LOGGER.debug("Bark success: %s", result)
             except Exception as e:
-                _LOGGER.error(e)
+                _LOGGER.error("Bark request failed: %s", e)
+                success = False
+
+        return success
