@@ -70,7 +70,7 @@ class BarkNotificationService(BaseNotificationService):
 
             try:
                 resp = requests.post(
-                    url=config[CONF_HOST] + "/push",
+                    url=config[CONF_HOST].rstrip("/") + "/push",
                     json=params
                 )
 

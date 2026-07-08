@@ -22,6 +22,7 @@ class BarkFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
+            user_input[CONF_HOST] = user_input[CONF_HOST].rstrip("/")
             return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
 
         return self.async_show_form(
@@ -46,11 +47,12 @@ class BarkFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 class OptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
+        super().__init__(config_entry)
         self.config = dict(config_entry.data)
 
     async def async_step_init(self, user_input=None):
         if user_input is not None:
+            user_input[CONF_HOST] = user_input[CONF_HOST].rstrip("/")
             self.config.update(user_input)
             self.hass.config_entries.async_update_entry(
                 self.config_entry,
