@@ -1,10 +1,10 @@
 {
   "domain": "ha_bark",
   "name": "Bark",
-  "documentation": "https://github.com/ryanh7/ha-bark",
+  "documentation": "https://github.com/Xc1Ym/ha-bark",
   "requirements": [],
-  "codeowners": ["@ryanh7"],
+  "codeowners": ["@Xc1Ym"],
   "config_flow": true,
   "iot_class": "local_polling",
-  "version": "1.0.0"
+  "version": "1.0.1"
 }
